@@ -6,11 +6,14 @@ Snakemake workflow for high-throughput upload of sequencing data to the European
 
 <br/>
 
-**Installation:**
-<br/>
+**Installation:** <br/>
 It is recommended to use ENAdumper with a Conda environment
-
-
+```
+git clone https://github.com/Serka-M/ENAdumper
+conda env create -f ENAdumper/src/conda.yaml -p ./ENAdumper/ENAdumper_env
+cp ENAdumper/src/* ENAdumper/ENAdumper_env/bin/.
+chmod +x ENAdumper/ENAdumper_env/bin/ENAdumper
+```
 <br/>
 
 **Full usage:**
