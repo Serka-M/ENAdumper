@@ -2,3 +2,29 @@
 <img align="center" width="185" height="185" src="msc/enadumper_logo.png" alt="logo" style="zoom:100%;" />
 </p>
 Snakemake workflow for high-throughput upload of sequencing data to the European Nucleotide Archive (ENA)
+
+**Full usage:**
+```
+COMPRESSION INPUTS:
+-i		--fast5_dir			Path to directory with Fast5 files 
+-n		--sample			Sample name 
+-p		--processes			Number of processes and fast5 batch count 
+ 
+UPLOAD INPUTS:
+-user		--webin_user			Webin username 
+-pass		--webin_pass			Webin password 
+ 
+ENA METADATA INPUTS:
+-k		--key				Key file with sample names and ENA sample IDs 
+-s		--study				ENA study ID 
+-ins		--instrument_model		Instrument model category
+-lib_n		--library_name			Prefix to be used with sample name for Library name category
+-lib_src	--library_source		Library source category
+-lib_sel	--library_selection		Library selection category
+-lib_strat	--library_strategy		Library strategy category
+
+EXTRA INPUTS:
+-h		--help				Print help information
+-v		--version			Print version number
+```
+<br/>
