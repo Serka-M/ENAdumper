@@ -8,6 +8,7 @@ Snakemake workflow for high-throughput upload of sequencing data to the European
 <br/>
 
 <br/>
+
 **Full usage:**
 ```
 ENAdumper --help
