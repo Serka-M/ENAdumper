@@ -48,7 +48,7 @@ ENA METADATA INPUTS:
 -lib_strat	--library_strategy		Library strategy category (default:$library_strategy)
 
 EXTRA INPUTS:
--h		--help			Print help information
+-h		--help				Print help information
 -v		--version			Print version number
 "
 
