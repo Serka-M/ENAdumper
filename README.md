@@ -16,6 +16,13 @@ chmod +x ENAdumper/ENAdumper_env/bin/ENAdumper
 ```
 <br/>
 
+**Quick-start:** 
+```
+source activate ENAdumper/ENAdumper_env
+ENAdumper --help
+```
+<br/>
+
 **Full usage:**
 ```
 ENAdumper --help
