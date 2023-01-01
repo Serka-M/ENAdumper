@@ -4,7 +4,9 @@
 Snakemake workflow for high-throughput upload of sequencing data to the European Nucleotide Archive (ENA)
 <br/>
 <br/>
+
 **Installation:**
+It is recommended to use ENAdumper with a Conda environment
 <br/>
 
 <br/>
