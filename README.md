@@ -49,5 +49,5 @@ EXTRA INPUTS:
 ```
 <br/>
 
-**Compatibility:** 
+**Compatibility:** <br/>
 ENAdumper has been developed and tested on x86_64 GNU/Linux, Ubuntu 20.04
