@@ -4,9 +4,11 @@
 Snakemake workflow for high-throughput upload of sequencing data to the European Nucleotide Archive (ENA)
 <br/>
 <br/>
-
-**Full usage:**
+**Installation:**
 <br/>
+
+<br/>
+**Full usage:**
 ```
 ENAdumper --help
 
