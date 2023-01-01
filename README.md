@@ -25,8 +25,6 @@ ENAdumper --help
 
 **Full usage:**
 ```
-ENAdumper --help
-
 COMPRESSION INPUTS:
 -i		--fast5_dir			Path to directory with Fast5 files 
 -n		--sample			Sample name 
