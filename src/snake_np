@@ -1,0 +1,84 @@
+# DESCRIPTION: Snakemake workflow code for uploading Nanopore raw data to ENA
+# AUTHOR: Mantas Sereika (mase@bio.aau.dk)
+# LICENSE: GNU General Public License
+
+shell.executable("/bin/bash")
+
+splits=config["splits"]
+fast5=config["fast5"]
+sample=config["sample"]
+study=config["study"]
+webin_user=config["webin_user"]
+webin_pass=config["webin_pass"]
+key=config["key"]
+instrument_model=config["instrument_model"]
+library_name=config["library_name"]
+library_source=config["library_source"]
+library_selection=config["library_selection"]
+library_strategy=config["library_strategy"]
+
+rule all:
+    message:
+        "End of workflow. Please submit ENA_{sample}.tsv to ENA to have your data included in the permanent archive."
+    input:
+        'split.txt',
+        'compress.txt',
+        'upload.txt',
+        'document.txt'
+
+rule split:
+    priority: 4
+    params:
+        find='-name "*.fast5"'
+    output:
+        out='split.txt'
+    shell:
+        """
+        find {fast5} {params.find} > fast5_{sample}.txt
+        split -n l/{splits} --numeric-suffixes=1 -d fast5_{sample}.txt {sample}_fast5_
+        echo "Fast5 splitting completed at $(date "+%Y-%m-%d %H:%M:%S")" > {output.out}
+        """
+
+rule compress:
+    priority: 3
+    output:
+        out='compress.txt'
+    shell:
+        """
+        find {sample}_fast5_[0-9][0-9] | xargs -i --max-procs={splits} bash -c "tar -cvzf {{}}.tar.gz -T {{}}"
+        find {sample}_fast5_[0-9][0-9].tar.gz | xargs -i --max-procs={splits} bash -c "md5sum {{}} > {{}}.md5"
+        echo "Fast5 compression completed at $(date "+%Y-%m-%d %H:%M:%S")" > {output.out}
+        """
+
+rule upload:
+    priority: 2
+    output:
+        out='upload.txt'
+    shell:
+        """
+	export ASPERA_SCP_PASS={webin_pass}
+        find {sample}_fast5_[0-9][0-9].tar.gz | xargs -i --max-procs={splits} bash -c "ascp -QT -l300M -L- {{}} {webin_user}@webin.ebi.ac.uk:."
+        echo "Fast5 upload to ENA completed at $(date "+%Y-%m-%d %H:%M:%S")" > {output.out}
+        """
+
+rule document:
+    priority: 1
+    output:
+        out='document.txt'
+    shell:
+        """
+	sample_ena=$(grep {sample} {key} | cut -f2)
+	library={library_name}{sample}
+
+	printf "FileType\tOxfordNanopore_native\tRead submission file type\n" > ENA_{sample}.tsv
+	printf "sample\tstudy\tinstrument_model\tlibrary_name\tlibrary_source\tlibrary_selection\tlibrary_strategy\tfile_name\tfile_md5\n" >> ENA_{sample}.tsv
+
+	for file in {sample}_fast5_[0-9][0-9].tar.gz; do
+		md5=$(cat $file.md5 | sed 's/  /,/' | cut -f1 -d",")
+		file_name=$(cat $file.md5 | sed 's/  /,/' | cut -f2 -d",")
+		printf "$sample_ena\t{study}\t{instrument_model}\t$library\t{library_source}\t{library_selection}\t{library_strategy}\t$file_name\t$md5\n" >> ENA_{sample}.tsv
+	done
+
+        echo "Fast5 data sheet generation completed at $(date "+%Y-%m-%d %H:%M:%S")" > {output.out}
+        """
+

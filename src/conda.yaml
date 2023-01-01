@@ -1,0 +1,10 @@
+name: ENAdumper
+channels:
+- conda-forge
+- bioconda
+- hcc
+- defaults
+dependencies:
+- snakemake=7.19.1
+- aspera-cli=3.9.6
+- git=2.34.1

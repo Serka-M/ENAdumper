@@ -1,0 +1,131 @@
+#!/bin/bash
+# DESCRIPTION: Wrapper script for running ENAdumper snakemake workflow
+# AUTHOR: Mantas Sereika (mase@bio.aau.dk)
+# LICENSE: GNU General Public License
+
+# Pre-set default settings
+set -eo pipefail
+version=0.1
+script=$(dirname -- "$BASH_SOURCE")
+config=$script/snake_np.yaml
+snakefile=$script/snake_np
+
+splits=$(grep splits $config | cut -d" " -f2 | tr -d '\r')
+fast5=$(grep fast5 $config | cut -d" " -f2 | tr -d '\r')
+sample=$(grep sample $config | cut -d" " -f2 | tr -d '\r')
+
+webin_user=$(grep webin_user $config | cut -d" " -f2 | tr -d '\r')
+webin_pass=$(grep webin_pass $config | cut -d" " -f2 | tr -d '\r')
+
+study=$(grep study $config | cut -d" " -f2 | tr -d '\r')
+key=$(grep key $config | cut -d" " -f2 | tr -d '\r')
+instrument_model=$(grep instrument_model $config | cut -d" " -f2 | tr -d '\r')
+library_name=$(grep library_name $config | cut -d" " -f2 | tr -d '\r')
+library_source=$(grep library_source $config | cut -d" " -f2 | tr -d '\r')
+library_selection=$(grep library_selection $config | cut -d" " -f2 | tr -d '\r')
+library_strategy=$(grep library_strategy $config | cut -d" " -f2 | tr -d '\r')
+
+# Usage instructions for terminal interface
+usage_text="
+ENAdumper: a workflow for dumping raw Nanopore data into ENA
+
+COMPRESSION INPUTS:
+-i		--fast5_dir			Path to directory with Fast5 files (default:$fast5)
+-n		--sample			Sample name (default:$sample)
+-p		--processes			Number of processes and fast5 batch count (default:$splits)
+ 
+UPLOAD INPUTS:
+-user		--webin_user			Webin username (default:$webin_user)
+-pass		--webin_pass			Webin password (default:$webin_pass)
+ 
+ENA METADATA INPUTS:
+-k		--key				Key file with sample names and ENA sample IDs (default:$key)
+-s		--study				ENA study ID (default:$study)
+-ins		--instrument_model		Instrument model category (default:$instrument_model)
+-lib_n		--library_name			Prefix to be used with sample name for Library name category (default:$library_name)
+-lib_src	--library_source		Library source category (default:$library_source)
+-lib_sel	--library_selection		Library selection category (default:$library_selection)
+-lib_strat	--library_strategy		Library strategy category (default:$library_strategy)
+
+EXTRA INPUTS:
+-h		--help			Print help information
+-v		--version			Print version number
+"
+
+# Assign inputs
+while test $# -gt 0; do
+           case "$1" in
+                -h | --help) printf -- "$usage_text"; exit 1;;
+                -v | --version) printf -- "ENAdumper version: $version\n"; exit 1;;
+                -i | --fast5_dir) shift; fast5=$1; shift;;
+                -n | --sample) shift; sample=$1; shift;;
+                -s | --study) shift; study=$1; shift;;
+                -k | --key) shift; key=$1; shift;;
+                -user | --webin_user) shift; webin_user=$1; shift;;
+                -pass | --webin_pass) shift; webin_pass=$1; shift;;
+                -p | --processes) shift splits=$1; if [ $splits -gt 9 ]; then splits=9; fi; shift;;
+                -ins | --instrument_model) shift; instrument_model=$1; shift;;
+                -lib_n | --library_name) shift; library_name=$1; shift;;
+                -lib_src | --library_source) shift; library_source=$1; shift;;
+                -lib_sel | --library_selection) shift; library_selection=$1; shift;;
+                -lib_strat | --library_strategy) shift; library_strategy=$1; shift;;
+                *)
+                   printf "$1 is not a recognized input! \n Type -help for more information on script usage.\n"
+                   exit 1;
+                   ;;
+          esac
+  done  
+
+# Turn relative path into absolute for fast5 input
+if [[ ! "$fast5" = /* ]]
+then
+	fast5="$(pwd)/$fast5"
+fi
+
+# Check if fast5 input directory exists
+if [ ! -d "$fast5" ]
+then
+	echo "ERROR: fast5 directory not found at $fast5. Aborting..." && exit 1
+fi
+
+# Turn relative path into absolute for key file
+if [[ ! "$key" = /* ]]
+then
+	key="$(pwd)/$key"
+fi
+
+# Check if key file exists
+if [ ! -f "$key" ]
+then
+	echo "ERROR: key file not found at $key. Aborting..." && exit 1
+fi
+
+# Check free space at working directory
+bytes_left="$(df --output=avail -B 1 "$(pwd)" | tail -n 1)"
+gigabytes_left=$(($bytes_left/1024**3))
+
+if [ $gigabytes_left -lt 500 ]
+then 
+	echo "ERROR: Less than 500 GB of free space left in working directory. Aborting..."
+	exit 1
+else
+	echo "$gigabytes_left GB of free space available in working directory"
+fi
+
+# Check dependencies
+if ! command -v snakemake &> /dev/null; then echo "Depedency "snakemake" could not be found. Aborting..." && exit 1; fi
+if ! command -v find &> /dev/null; then echo "Depedency "find" could not be found. Aborting..." && exit 1; fi
+if ! command -v split &> /dev/null; then echo "Depedency "split" could not be found. Aborting..." && exit 1; fi
+if ! command -v xargs &> /dev/null; then echo "Depedency "xargs" could not be found. Aborting..." && exit 1; fi
+if ! command -v tar &> /dev/null; then echo "Depedency tar "could" not be found. Aborting..." && exit 1; fi
+if ! command -v md5sum &> /dev/null; then echo "Depedency "md5sum" could not be found. Aborting..." && exit 1; fi
+if ! command -v ascp &> /dev/null; then echo "Depedency "ascp" could not be found. Aborting..." && exit 1; fi
+
+# Make directory for output
+if [ ! -d "$(pwd)/ENAdumper_${sample}" ]; then mkdir $(pwd)/ENAdumper_${sample}; fi
+
+# Run snakemake workflow
+cd $(pwd)/ENAdumper_${sample}
+snakemake --cores 1 -s $snakefile --configfile $config --config sample=$sample study=$study fast5=$fast5 splits=$splits webin_pass=$webin_pass webin_user=$webin_user key=$key instrument_model=$instrument_model library_name=$library_name library_source=$library_source library_selection=$library_selection library_strategy=$library_strategy
+cd ..
+exit 0
