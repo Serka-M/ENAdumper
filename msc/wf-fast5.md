@@ -16,10 +16,10 @@
 | SAMPLE | ERS00000006 | S6 |
 
 #### Running the ENAdumper workflow
-1. Given the typical size of a usual Fast5 dataset, ENAdumper processes and uploads one sample at a time.
-2. The main input is a path to a directory containing Fast5 files that the user wants to upload.
+1. Given the typical size of a usual Fast5 dataset, ENAdumper processes and uploads one sample at a time
+2. The main input is a path to a directory containing Fast5 files that the user wants to upload
 3. Example command for uploading Fast5 data with ENAdumper: <br/>
 `ENAdumper --fast5_dir /path/to/fast5 --key sample_sheet.tsv --sample S1 --study PRJEB00001 -user Webin-0001 -pass Banana1`
 4. ENAdumper will split and compress the Fast5 files into multiple batches, which can be set using the `--processes` option
-5. After the upload is complete, an ENA spreadsheet will be generated that can be [submitted](https://ena-docs.readthedocs.io/en/latest/submit/reads/interactive.html#step-3-submit-the-template-spreadsheet) to have the files included in the permanent archive.
-6. 
+5. After the upload is complete, an ENA template spreadsheet will be generated that can be [submitted](https://ena-docs.readthedocs.io/en/latest/submit/reads/interactive.html#step-3-submit-the-template-spreadsheet) to have the files included in the permanent archive
+6. It is highly recommended to double-check the template-spreadsheet before submitting it to ENA
