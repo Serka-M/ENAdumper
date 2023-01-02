@@ -1,1 +1,3 @@
-**Uploading Nanopore raw data to ENA using ENA dumper**
+### Uploading Nanopore raw data to ENA using ENA dumper
+
+#### Prerequisites
