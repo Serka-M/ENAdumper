@@ -6,9 +6,9 @@
 # Pre-set default settings
 set -eo pipefail
 version=0.1
+mode="OFF"
 script=$(dirname -- "$BASH_SOURCE")
-config=$script/snake_np.yaml
-snakefile=$script/snake_np
+config=$script/config.yaml
 
 splits=$(grep splits $config | cut -d" " -f2 | tr -d '\r')
 fast5=$(grep fast5 $config | cut -d" " -f2 | tr -d '\r')
@@ -27,10 +27,12 @@ library_strategy=$(grep library_strategy $config | cut -d" " -f2 | tr -d '\r')
 
 # Usage instructions for terminal interface
 usage_text="
-ENAdumper: a workflow for dumping raw Nanopore data into ENA
+ENAdumper: a workflow for dumping sequencing data into ENA
+For issues or feedback please use https://github.com/Serka-M/ENAdumper/issues or mase@bio.aau.dk 
 
 COMPRESSION INPUTS:
--i		--fast5_dir			Path to directory with Fast5 files (default:$fast5)
+-fq		--fastq_dir			Path to directory with FastQ files (default:$fastq)
+-np		--fast5_dir			Path to directory with Fast5 files (default:$fast5)
 -n		--sample			Sample name (default:$sample)
 -p		--processes			Number of processes and fast5 batch count (default:$splits)
  
@@ -57,7 +59,8 @@ while test $# -gt 0; do
            case "$1" in
                 -h | --help) printf -- "$usage_text"; exit 1;;
                 -v | --version) printf -- "ENAdumper version: $version\n"; exit 1;;
-                -i | --fast5_dir) shift; fast5=$1; shift;;
+                -np | --fast5_dir) shift; fast5=$1 && mode="fast5" && snakefile=$script/snake_np; shift;;
+                -fq | --fastq_dir) shift; fastq=$1 && mode="fastq" && snakefile=$script/snake_fq; shift;;
                 -n | --sample) shift; sample=$1; shift;;
                 -s | --study) shift; study=$1; shift;;
                 -k | --key) shift; key=$1; shift;;
@@ -76,41 +79,28 @@ while test $# -gt 0; do
           esac
   done  
 
-# Turn relative path into absolute for fast5 input
-if [[ ! "$fast5" = /* ]]
-then
-	fast5="$(pwd)/$fast5"
-fi
+# Check mode type
+if [ $mode == "OFF" ]; then echo "Input files not provided. Exitting..." && exit 1; fi
+if [ ! $fast5 == "fast5" ] && [ ! $fastq == "fastq" ]; then echo "Multiple input files provided. Exitting..." && exit 1; fi
 
+# Checks for fast5 transfer mode
+if [ $mode == "fast5" ]; then
+# Turn relative path into absolute for fast5 input
+if [[ ! "$fast5" = /* ]]; then fast5="$(pwd)/$fast5"; fi
 # Check if fast5 input directory exists
-if [ ! -d "$fast5" ]
-then
-	echo "ERROR: fast5 directory not found at $fast5. Aborting..." && exit 1
-fi
+if [ ! -d "$fast5" ]; then echo "ERROR: fast5 directory not found at $fast5. Aborting..." && exit 1; fi; fi
 
 # Turn relative path into absolute for key file
-if [[ ! "$key" = /* ]]
-then
-	key="$(pwd)/$key"
-fi
+if [[ ! "$key" = /* ]]; then key="$(pwd)/$key"; fi
 
 # Check if key file exists
-if [ ! -f "$key" ]
-then
-	echo "ERROR: key file not found at $key. Aborting..." && exit 1
-fi
+if [ ! -f "$key" ]; then echo "ERROR: key file not found at $key. Aborting..." && exit 1; fi
 
 # Check free space at working directory
 bytes_left="$(df --output=avail -B 1 "$(pwd)" | tail -n 1)"
 gigabytes_left=$(($bytes_left/1024**3))
-
-if [ $gigabytes_left -lt 500 ]
-then 
-	echo "ERROR: Less than 500 GB of free space left in working directory. Aborting..."
-	exit 1
-else
-	echo "$gigabytes_left GB of free space available in working directory"
-fi
+if [ $gigabytes_left -lt 500 ]; then  echo "ERROR: Less than 500 GB of free space left in working directory. Aborting..." && exit 1;
+else echo "$gigabytes_left GB of free space available in working directory"; fi
 
 # Check dependencies
 if ! command -v snakemake &> /dev/null; then echo "Depedency "snakemake" could not be found. Aborting..." && exit 1; fi
@@ -122,10 +112,11 @@ if ! command -v md5sum &> /dev/null; then echo "Depedency "md5sum" could not be 
 if ! command -v ascp &> /dev/null; then echo "Depedency "ascp" could not be found. Aborting..." && exit 1; fi
 
 # Make directory for output
-if [ ! -d "$(pwd)/ENAdumper_${sample}" ]; then mkdir $(pwd)/ENAdumper_${sample}; fi
+if [ ! -d "$(pwd)/ENAdumper_${mode}_${sample}" ]; then mkdir $(pwd)/ENAdumper_${mode}_${sample}; fi
 
 # Run snakemake workflow
-cd $(pwd)/ENAdumper_${sample}
+echo "Starting snakemake workflow in $mode mode..."
+cd $(pwd)/ENAdumper_${mode}_${sample}
 snakemake --cores 1 -s $snakefile --configfile $config --config sample=$sample study=$study fast5=$fast5 splits=$splits webin_pass=$webin_pass webin_user=$webin_user key=$key instrument_model=$instrument_model library_name=$library_name library_source=$library_source library_selection=$library_selection library_strategy=$library_strategy
 cd ..
 exit 0
