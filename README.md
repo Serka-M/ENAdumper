@@ -26,6 +26,7 @@ ENAdumper --help
 **Full usage:**
 ```
 COMPRESSION INPUTS:
+-fq		--fastq_dir			Path to directory with FastQ files 
 -np		--fast5_dir			Path to directory with Fast5 files 
 -n		--sample			Sample name 
 -p		--processes			Number of processes and fast5 batch count 
