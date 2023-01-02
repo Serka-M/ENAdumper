@@ -21,5 +21,5 @@
 3. Example command for uploading Fast5 data with ENAdumper: <br/>
 `ENAdumper --fast5_dir /path/to/fast5 --key sample_sheet.tsv --sample S1 --study PRJEB00001 -user Webin-0001 -pass Banana1`
 4. ENAdumper will split and compress the Fast5 files into multiple batches, which can be set using the `--processes` option
-5. After the upload is complete, an ENA template spreadsheet will be generated that can be [submitted](https://ena-docs.readthedocs.io/en/latest/submit/reads/interactive.html#step-3-submit-the-template-spreadsheet) to have the files included in the permanent archive
+5. After the upload is complete, an ENA template spreadsheet will be generated that can be [submitted](https://ena-docs.readthedocs.io/en/latest/submit/reads/interactive.html#step-3-submit-the-template-spreadsheet) to include the files in the permanent archive
 6. It is highly recommended to double-check the template-spreadsheet before submitting it to ENA
