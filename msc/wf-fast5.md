@@ -1,4 +1,4 @@
-### Uploading raw Nanopore data to ENA using ENA dumper
+### Uploading raw Nanopore data to ENA using ENAdumper
 
 #### Prerequisites
 1. Register a [study](https://ena-docs.readthedocs.io/en/latest/submit/study.html) at ENA and get a study ID
@@ -13,3 +13,5 @@
 | SAMPLE | ERS00000004 | sample_4 |
 | SAMPLE | ERS00000005 | sample_5 |
 | SAMPLE | ERS00000006 | sample_6 |
+
+#### Running the ENAdumper workflow
