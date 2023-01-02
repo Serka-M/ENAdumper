@@ -1,9 +1,8 @@
 <p align="center">
 <img align="center" width="185" height="185" src="msc/enadumper_logo.png" alt="logo" style="zoom:100%;" />
 </p>
-Snakemake workflow for high-throughput upload of sequencing data to the European Nucleotide Archive (ENA)
-<br/>
-<br/>
+Snakemake workflow for high-throughput upload of sequencing data to the European Nucleotide Archive (ENA)<br/>
+
 **Guides for running workflow modes:**
 * [Fast5](msc/wf-fast5.md)
 * [Fastq](msc/wf-fastq.md)
