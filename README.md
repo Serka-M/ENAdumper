@@ -3,7 +3,7 @@
 </p>
 Snakemake workflow for high-throughput upload of sequencing data to the European Nucleotide Archive (ENA)
 <br/>
-
+<br/>
 **Guides for running workflow modes:**
 * [Fast5](msc/wf-fast5.md)
 * [Fastq](msc/wf-fastq.md)
