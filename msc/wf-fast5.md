@@ -2,4 +2,4 @@
 
 #### Prerequisites
 1. Register a [study](https://ena-docs.readthedocs.io/en/latest/submit/study.html) at ENA and get a study ID
-2. 
+2. Register your [sample](https://ena-docs.readthedocs.io/en/latest/submit/samples.html) 
