@@ -16,3 +16,7 @@
 | SAMPLE | ERS00000006 | sample_6 |
 
 #### Running the ENAdumper workflow
+1. Given the usual size of a typical Fast5 dataset, ENAdumper processes one sample at a time.
+2. The main input is a path to a directory containing Fast5 files that the user wants to upload.
+3. Example for uploading Fast5 data with ENAdumper:
+'ENAdumper --fast5_dir /path/to/fast5/files --key /path/to/ENA/sample/sheet.tsv --sample sample_1 --study PRJEB00001 --webin_user Webin-0001 --webin_pass SecurePassword1'
