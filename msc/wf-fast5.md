@@ -20,3 +20,4 @@
 2. The main input is a path to a directory containing Fast5 files that the user wants to upload.
 3. Example command for uploading Fast5 data with ENAdumper: <br/>
 `ENAdumper --fast5_dir /path/to/fast5 --key sample_sheet.tsv --sample S1 --study PRJEB00001 -user Webin-0001 -pass Banana1`
+4. ENAdumper will split and compress the Fast5 files into multiple batches, the can be set using the `--processes` setting
