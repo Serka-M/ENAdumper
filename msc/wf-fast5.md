@@ -8,15 +8,15 @@
 
 | TYPE | ACCESSION | ALIAS |
 | --- | --- | --- |
-| SAMPLE | ERS00000001 | sample_1 |
-| SAMPLE | ERS00000002 | sample_2 |
-| SAMPLE | ERS00000003 | sample_3 |
-| SAMPLE | ERS00000004 | sample_4 |
-| SAMPLE | ERS00000005 | sample_5 |
-| SAMPLE | ERS00000006 | sample_6 |
+| SAMPLE | ERS00000001 | S1 |
+| SAMPLE | ERS00000002 | S2 |
+| SAMPLE | ERS00000003 | S3 |
+| SAMPLE | ERS00000004 | S4 |
+| SAMPLE | ERS00000005 | S5 |
+| SAMPLE | ERS00000006 | S6 |
 
 #### Running the ENAdumper workflow
 1. Given the typical size of a usual Fast5 dataset, ENAdumper processes and uploads one sample at a time.
 2. The main input is a path to a directory containing Fast5 files that the user wants to upload.
 3. Example command for uploading Fast5 data with ENAdumper: <br/>
-`ENAdumper --fast5_dir /path/to/fast5 --key sample_sheet.tsv --sample sample_1 --study PRJEB00001 --webin_user Webin-0001 --webin_pass Banana1`
+`ENAdumper --fast5_dir /path/to/fast5 --key sample_sheet.tsv --sample S1 --study PRJEB00001 --webin_user Webin-0001 --webin_pass Banana1`
