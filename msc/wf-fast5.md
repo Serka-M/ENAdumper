@@ -5,7 +5,7 @@
 2. Register your [samples](https://ena-docs.readthedocs.io/en/latest/submit/samples.html) to acquire the sample sheet from ENA
 3. The sample sheet will act as a key-file linking sample name to the ENA sample ID. Example below:
 
-| 1 | 2 | 3 |
+| TYPE | ACCESSION | ALIAS |
 | --- | --- | --- |
 | SAMPLE | ERS00000001 | sample_1 |
 | SAMPLE | ERS00000002 | sample_2 |
