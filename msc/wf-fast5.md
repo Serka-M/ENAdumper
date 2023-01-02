@@ -19,4 +19,4 @@
 1. Given the typical size of a usual Fast5 dataset, ENAdumper processes and uploads one sample at a time.
 2. The main input is a path to a directory containing Fast5 files that the user wants to upload.
 3. Example command for uploading Fast5 data with ENAdumper: <br/>
-`ENAdumper --fast5_dir /path/to/fast5 --key sample_sheet.tsv --sample sample_1 --study PRJEB00001 --webin_user Webin-0001 --webin_pass Password1`
+`ENAdumper --fast5_dir /path/to/fast5 --key sample_sheet.tsv --sample sample_1 --study PRJEB00001 --webin_user Webin-0001 --webin_pass Banana1`
