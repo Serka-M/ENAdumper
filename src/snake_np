@@ -18,67 +18,62 @@ library_selection=config["library_selection"]
 library_strategy=config["library_strategy"]
 
 rule all:
+    input:
+        expand("ENA_{name}.tsv", name=sample)
     message:
         "End of workflow. Please submit ENA_{sample}.tsv to ENA to have your data included in the permanent archive."
-    input:
-        'split.txt',
-        'compress.txt',
-        'upload.txt',
-        'document.txt'
 
 rule split:
-    priority: 4
     params:
         find='-name "*.fast5"'
     output:
-        out='split.txt'
+        expand("{name}_fast5.txt", name=sample)
     shell:
         """
-        find {fast5} {params.find} > fast5_{sample}.txt
-        split -n l/{splits} --numeric-suffixes=1 -d fast5_{sample}.txt {sample}_fast5_
-        echo "Fast5 splitting completed at $(date "+%Y-%m-%d %H:%M:%S")" > {output.out}
+        find {fast5} {params.find} > {output}
+        split -n l/{splits} --numeric-suffixes=1 -d {output} {sample}_fast5_
         """
 
 rule compress:
-    priority: 3
+    input:
+        expand("{name}_fast5.txt", name=sample)
     output:
-        out='compress.txt'
+        expand("{name}_fast5_01.tar.gz", name=sample)
     shell:
         """
         find {sample}_fast5_[0-9][0-9] | xargs -i --max-procs={splits} bash -c "tar -cvzf {{}}.tar.gz -T {{}}"
         find {sample}_fast5_[0-9][0-9].tar.gz | xargs -i --max-procs={splits} bash -c "md5sum {{}} > {{}}.md5"
-        echo "Fast5 compression completed at $(date "+%Y-%m-%d %H:%M:%S")" > {output.out}
+        if [ ! -f {output} ]; then printf "Error with fast5 compression" && exit 1; fi
         """
 
 rule upload:
-    priority: 2
+    input:
+        expand("{name}_fast5_01.tar.gz", name=sample)
     output:
-        out='upload.txt'
+        'upload.txt'
     shell:
         """
-	export ASPERA_SCP_PASS={webin_pass}
+        export ASPERA_SCP_PASS={webin_pass}
         find {sample}_fast5_[0-9][0-9].tar.gz | xargs -i --max-procs={splits} bash -c "ascp -QT -l300M -L- {{}} {webin_user}@webin.ebi.ac.uk:."
-        echo "Fast5 upload to ENA completed at $(date "+%Y-%m-%d %H:%M:%S")" > {output.out}
+        printf "Fast5 upload to ENA completed at $(date "+%Y-%m-%d %H:%M:%S")\n" > {output}
         """
 
 rule document:
-    priority: 1
+    input:
+        'upload.txt'
     output:
-        out='document.txt'
+        expand("ENA_{name}.tsv", name=sample)
     shell:
         """
-	sample_ena=$(grep {sample} {key} | cut -f2)
-	library={library_name}{sample}
+        sample_ena=$(grep {sample} {key} | cut -f2)
+        library={library_name}{sample}
 
-	printf "FileType\tOxfordNanopore_native\tRead submission file type\n" > ENA_{sample}.tsv
-	printf "sample\tstudy\tinstrument_model\tlibrary_name\tlibrary_source\tlibrary_selection\tlibrary_strategy\tfile_name\tfile_md5\n" >> ENA_{sample}.tsv
+        printf "FileType\tOxfordNanopore_native\tRead submission file type\n" > {output}
+        printf "sample\tstudy\tinstrument_model\tlibrary_name\tlibrary_source\tlibrary_selection\tlibrary_strategy\tfile_name\tfile_md5\n" >> {output}
 
-	for file in {sample}_fast5_[0-9][0-9].tar.gz; do
+        for file in {sample}_fast5_[0-9][0-9].tar.gz; do
 		md5=$(cat $file.md5 | sed 's/  /,/' | cut -f1 -d",")
 		file_name=$(cat $file.md5 | sed 's/  /,/' | cut -f2 -d",")
-		printf "$sample_ena\t{study}\t{instrument_model}\t$library\t{library_source}\t{library_selection}\t{library_strategy}\t$file_name\t$md5\n" >> ENA_{sample}.tsv
-	done
-
-        echo "Fast5 data sheet generation completed at $(date "+%Y-%m-%d %H:%M:%S")" > {output.out}
+		printf "$sample_ena\t{study}\t{instrument_model}\t$library\t{library_source}\t{library_selection}\t{library_strategy}\t$file_name\t$md5\n" >> {output}
+        done
         """
-
