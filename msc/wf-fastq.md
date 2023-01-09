@@ -30,6 +30,6 @@
 
 3. If the sample name is not provided, the basename of the read file will be used instead.
 4. Example command for uploading FastQ data with ENAdumper: <br/>
-`ENAdumper --fastq_list reads_to_upload.tsv --key sample_sheet.tsv --study PRJEB00001 -n BATCH1 -user Webin-0001 -pass Banana1`
+`ENAdumper --fastq_list list.tsv --key sample_sheet.tsv --study PRJEB00001 -n BATCH1 -user Webin-0001 -pass Banana1`
 
 [//]: # (Written by Mantas Sereika)
