@@ -5,7 +5,7 @@ Snakemake workflow for high-throughput upload of sequencing data to the European
 
 **Guides for ENAdumper workflows:**
 * [Fast5](msc/wf-fast5.md)
-* [Fastq](msc/wf-fastq.md)
+* [FastQ](msc/wf-fastq.md)
 <br/>
 
 **Installation:** <br/>
