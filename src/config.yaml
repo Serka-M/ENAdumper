@@ -11,3 +11,4 @@ library_name: LIB-
 library_source: METAGENOMIC
 library_selection: RANDOM
 library_strategy: WGS
+library_layout: SINGLE

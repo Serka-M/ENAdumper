@@ -1,0 +1,78 @@
+# DESCRIPTION: Snakemake workflow code for uploading Nanopore raw data to ENA
+# AUTHOR: Mantas Sereika (mase@bio.aau.dk)
+# LICENSE: GNU General Public License
+
+shell.executable("/bin/bash")
+
+splits=config["splits"]
+fastq=config["fastq"]
+sample=config["sample"]
+study=config["study"]
+webin_user=config["webin_user"]
+webin_pass=config["webin_pass"]
+key=config["key"]
+instrument_model=config["instrument_model"]
+library_name=config["library_name"]
+library_source=config["library_source"]
+library_selection=config["library_selection"]
+library_strategy=config["library_strategy"]
+library_layout=config["library_layout"]
+
+rule all:
+    input:
+        expand("ENA_{name}.tsv", name=sample)
+    message:
+        "End of workflow. Please submit ENA_{sample}.tsv to ENA to have your data included in the permanent archive."
+
+rule list:
+    input:
+        {fastq}
+    output:
+        df='reads.tsv',
+        list='reads.txt'
+    shell:
+        """
+        cat {input} | while read reads || [[ -n $reads ]];
+        do
+        read=$(echo $reads | awk '{{print $1}}')
+        name=$(echo $reads | awk '{{print $2}}')
+        if [ -z "$name" ]; then name=$(basename $read | sed "s/\..*//"); fi
+        printf "$read\t$name\n" >> {output.df}
+        done
+		awk '{{print $1}}' {output.df} > {output.list}
+		cat {output.list} | xargs -i --max-procs={splits} bash -c "md5sum {{}} > $(basename {{}}.md5)"
+        """
+
+rule upload:
+    input:
+        'reads.txt'
+    output:
+        'upload.txt'
+    shell:
+        """
+        export ASPERA_SCP_PASS={webin_pass}
+        cat {input} | xargs -i --max-procs={splits} bash -c "ascp -QT -l300M -L- {{}} {webin_user}@webin.ebi.ac.uk:."
+        printf "FastQ upload to ENA completed at $(date "+%Y-%m-%d %H:%M:%S")\n" > {output}
+        """
+
+rule document:
+    input:
+        'upload.txt'
+    output:
+        expand("ENA_{name}.tsv", name=sample)
+    shell:
+        """
+        printf "FileType\tfastq\tRead submission file type\n" > {output}
+        printf "sample\tstudy\tinstrument_model\tlibrary_name\tlibrary_source\tlibrary_selection\tlibrary_strategy\tlibrary_layout\tfile_name\tfile_md5\n" >> {output}
+
+        cat reads.tsv | while read reads || [[ -n $reads ]];
+		do
+        read=$(echo $reads | awk '{{print $1}}')
+        name=$(echo $reads | awk '{{print $2}}')
+		file_name=$(basename $read)
+		md5=$(cat ${{read}}.md5 | sed 's/  /,/' | cut -f1 -d",")
+		sample_ena=$(grep $name {key} | cut -f2)
+		library={library_name}${{name}}	
+        printf "$sample_ena\t{study}\t{instrument_model}\t$library\t{library_source}\t{library_selection}\t{library_strategy}\t{library_layout}\t$file_name\t$md5\n" >> {output}
+        done
+        """
