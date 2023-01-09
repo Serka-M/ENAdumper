@@ -18,6 +18,7 @@
 #### Running the ENAdumper workflow
 1. The workflow assumes that the FastQ datasets have already been compressed to save storage space
 2. The main input is a tsv file containing the paths and sample names of the compressed FastQ files. Example below:
+
 | FILEPATH | ALIAS |
 | --- | --- |
 | /path/to/reads/S1.fastq.gz | S1 |
