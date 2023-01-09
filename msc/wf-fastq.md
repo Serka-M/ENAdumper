@@ -22,11 +22,11 @@
 | FILEPATH | ALIAS |
 | --- | --- |
 | /path/to/reads/S1.fastq.gz | S1 |
-| /path/to/reads/S1.fastq.gz | |
-| /path/to/reads/S1.fastq.gz | |
-| /path/to/reads/S1.fastq.gz | S4 |
-| /path/to/reads/S1.fastq.gz | |
-| /path/to/reads/S1.fastq.gz | S6 |
+| /path/to/reads/S2.fastq.gz | |
+| /path/to/reads/S3.fastq.gz | |
+| /path/to/reads/S4.fastq.gz | S4 |
+| /path/to/reads/S5.fastq.gz | |
+| /path/to/reads/S6.fastq.gz | S6 |
 
 
 [//]: # (Written by Mantas Sereika)
