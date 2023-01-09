@@ -1,3 +1,22 @@
-The mode for uploading Fastq files is curently unavailable, but is scheduled for a future release
+### Uploading sequencing read data to ENA using ENAdumper
+
+#### Prerequisites
+1. Register a [Webin account](https://ena-docs.readthedocs.io/en/latest/submit/general-guide/registration.html) at ENA for submitting files
+2. Register a [study](https://ena-docs.readthedocs.io/en/latest/submit/study.html) at ENA and get a study ID
+3. Register your [samples](https://ena-docs.readthedocs.io/en/latest/submit/samples.html) to acquire the sample sheet from ENA
+4. The sample sheet will act as a key-file linking the sample names to the corresponding ENA sample IDs. Example below:
+
+| TYPE | ACCESSION | ALIAS |
+| --- | --- | --- |
+| SAMPLE | ERS00000001 | S1 |
+| SAMPLE | ERS00000002 | S2 |
+| SAMPLE | ERS00000003 | S3 |
+| SAMPLE | ERS00000004 | S4 |
+| SAMPLE | ERS00000005 | S5 |
+| SAMPLE | ERS00000006 | S6 |
+
+#### Running the ENAdumper workflow
+1. The workflow assumes that the FastQ datasets have already been compressed to save storage space
+
 
 [//]: # (Written by Mantas Sereika)
