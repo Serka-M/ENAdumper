@@ -1,4 +1,4 @@
-### Uploading sequencing read data to ENA using ENAdumper
+### Uploading FastQ sequencing read data to ENA using ENAdumper
 
 #### Prerequisites
 1. Register a [Webin account](https://ena-docs.readthedocs.io/en/latest/submit/general-guide/registration.html) at ENA for submitting files
