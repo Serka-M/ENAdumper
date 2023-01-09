@@ -31,5 +31,8 @@
 3. If the sample name is not provided, the basename of the read file will be used instead.
 4. Example command for uploading FastQ data with ENAdumper: <br/>
 `ENAdumper --fastq_list list.tsv --key sample_sheet.tsv --study PRJEB00001 -n BATCH1 -user Webin-0001 -pass Banana1`
+5. ENAdumper will upload FastQ files in parallel, which can be set using the `--processes` option
+6. After upload is complete, a template spreadsheet will be generated that can be [submitted](https://ena-docs.readthedocs.io/en/latest/submit/reads/interactive.html#step-3-submit-the-template-spreadsheet) to include the files in the permanent archive
+7. It is highly recommended to double-check the template spreadsheet before submitting it to ENA
 
 [//]: # (Written by Mantas Sereika)
