@@ -28,5 +28,6 @@
 | /path/to/reads/S5.fastq.gz | |
 | /path/to/reads/S6.fastq.gz | S6 |
 
+3. If the sample name is not provided, the basename of the read file will be used instead.
 
 [//]: # (Written by Mantas Sereika)
