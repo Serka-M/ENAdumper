@@ -45,6 +45,7 @@ ENA METADATA INPUTS:
 -lib_src	--library_source		Library source category
 -lib_sel	--library_selection		Library selection category
 -lib_strat	--library_strategy		Library strategy category
+-lib_lay	--library_layout		Library layout category
 
 EXTRA INPUTS:
 -h		--help				Print help information
