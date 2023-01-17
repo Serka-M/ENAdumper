@@ -1,5 +1,5 @@
 <p align="center">
-<img align="center" width="120" height="150" src="msc/enadumper_logo.png" alt="logo" style="zoom:100%;" />
+<img align="center" width="150" height="150" src="msc/enadumper_logo.png" alt="logo" style="zoom:100%;" />
 </p>
 Snakemake workflow for high-throughput upload of sequencing data to the European Nucleotide Archive (ENA)<br/><br/>
 
