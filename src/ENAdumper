@@ -5,7 +5,7 @@
 
 # Pre-set default settings
 set -eo pipefail
-version=0.3
+version=1.0
 mode="OFF"
 script=$(dirname -- "$BASH_SOURCE")
 config=$script/config.yaml
@@ -113,14 +113,14 @@ if [ $gigabytes_left -lt 500 ]; then  echo "ERROR: Less than 500 GB of free spac
 else echo "$gigabytes_left GB of free space available in working directory"; fi
 
 # Check dependencies
-if ! command -v snakemake &> /dev/null; then echo "Depedency "snakemake" could not be found. Aborting..." && exit 1; fi
-if ! command -v find &> /dev/null; then echo "Depedency "find" could not be found. Aborting..." && exit 1; fi
-if ! command -v split &> /dev/null; then echo "Depedency "split" could not be found. Aborting..." && exit 1; fi
-if ! command -v xargs &> /dev/null; then echo "Depedency "xargs" could not be found. Aborting..." && exit 1; fi
-if ! command -v tar &> /dev/null; then echo "Depedency tar "could" not be found. Aborting..." && exit 1; fi
-if ! command -v md5sum &> /dev/null; then echo "Depedency "md5sum" could not be found. Aborting..." && exit 1; fi
-if ! command -v ascp &> /dev/null; then echo "Depedency "ascp" could not be found. Aborting..." && exit 1; fi
-if ! command -v basename &> /dev/null; then echo "Depedency "basename" could not be found. Aborting..." && exit 1; fi
+if ! command -v snakemake &> /dev/null; then echo "Dependency "snakemake" could not be found. Aborting..." && exit 1; fi
+if ! command -v find &> /dev/null; then echo "Dependency "find" could not be found. Aborting..." && exit 1; fi
+if ! command -v split &> /dev/null; then echo "Dependency "split" could not be found. Aborting..." && exit 1; fi
+if ! command -v xargs &> /dev/null; then echo "Dependency "xargs" could not be found. Aborting..." && exit 1; fi
+if ! command -v tar &> /dev/null; then echo "Dependency tar "could" not be found. Aborting..." && exit 1; fi
+if ! command -v md5sum &> /dev/null; then echo "Dependency "md5sum" could not be found. Aborting..." && exit 1; fi
+if ! command -v ascp &> /dev/null; then echo "Dependency "ascp" could not be found. Aborting..." && exit 1; fi
+if ! command -v basename &> /dev/null; then echo "Dependency "basename" could not be found. Aborting..." && exit 1; fi
 
 # Make directory for output
 if [ ! -d "$(pwd)/ENAdumper_${mode}_${sample}" ]; then mkdir $(pwd)/ENAdumper_${mode}_${sample}; fi

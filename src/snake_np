@@ -2,8 +2,6 @@
 # AUTHOR: Mantas Sereika (mase@bio.aau.dk)
 # LICENSE: GNU General Public License
 
-shell.executable("/bin/bash")
-
 splits=config["splits"]
 fast5=config["fast5"]
 sample=config["sample"]
@@ -17,46 +15,10 @@ library_source=config["library_source"]
 library_selection=config["library_selection"]
 library_strategy=config["library_strategy"]
 
-rule all:
-    input:
-        expand("ENA_{name}.tsv", name=sample)
-    message:
-        "End of workflow. Please submit ENA_{sample}.tsv to ENA to have your data included in the permanent archive."
+shell.executable("/bin/bash")
 
-rule split:
-    params:
-        find='-name "*.fast5"'
-    output:
-        expand("{name}_fast5.txt", name=sample)
-    shell:
-        """
-        find {fast5} {params.find} > {output}
-        split -n l/{splits} --numeric-suffixes=1 -d {output} {sample}_fast5_
-        """
-
-rule compress:
-    input:
-        expand("{name}_fast5.txt", name=sample)
-    output:
-        expand("{name}_fast5_01.tar.gz", name=sample)
-    shell:
-        """
-        find {sample}_fast5_[0-9][0-9] | xargs -i --max-procs={splits} bash -c "tar -cvzf {{}}.tar.gz -T {{}}"
-        find {sample}_fast5_[0-9][0-9].tar.gz | xargs -i --max-procs={splits} bash -c "md5sum {{}} > {{}}.md5"
-        if [ ! -f {output} ]; then printf "Error with fast5 compression" && exit 1; fi
-        """
-
-rule upload:
-    input:
-        expand("{name}_fast5_01.tar.gz", name=sample)
-    output:
-        'upload.txt'
-    shell:
-        """
-        export ASPERA_SCP_PASS={webin_pass}
-        find {sample}_fast5_[0-9][0-9].tar.gz | xargs -i --max-procs={splits} bash -c "ascp -QT -l300M -L- {{}} {webin_user}@webin.ebi.ac.uk:."
-        printf "Fast5 upload to ENA completed at $(date "+%Y-%m-%d %H:%M:%S")\n" > {output}
-        """
+onsuccess:
+    print("End of workflow. Please submit ENA_",sample,".tsv to ENA to have your data included in the permanent archive.", sep='')
 
 rule document:
     input:
@@ -76,4 +38,39 @@ rule document:
 		file_name=$(cat $file.md5 | sed 's/  /,/' | cut -f2 -d",")
 		printf "$sample_ena\t{study}\t{instrument_model}\t$library\t{library_source}\t{library_selection}\t{library_strategy}\t$file_name\t$md5\n" >> {output}
         done
+        """
+		
+rule split:
+    params:
+        find='-name "*.fast5"'
+    output:
+        expand("{name}_fast5.txt", name=sample)
+    shell:
+        """
+        find {fast5} {params.find} > {output}
+        split -n l/{splits} --numeric-suffixes=1 -d {output} {sample}_fast5_
+        """
+
+rule compress:
+    input:
+        expand("{name}_fast5.txt", name=sample)
+    output:
+        expand("{name}_fast5_01.tar.gz", name=sample)
+    shell:
+        """
+        find {sample}_fast5_[0-9][0-9] | xargs -i --max-procs={splits} bash -c "tar -cvzf {{}}.tar.gz -T {{}} --transform 's/.*\///g' --show-transformed"
+        find {sample}_fast5_[0-9][0-9].tar.gz | xargs -i --max-procs={splits} bash -c "md5sum {{}} > {{}}.md5"
+        if [ ! -f {output} ]; then printf "Error with fast5 compression" && exit 1; fi
+        """
+
+rule upload:
+    input:
+        expand("{name}_fast5_01.tar.gz", name=sample)
+    output:
+        'upload.txt'
+    shell:
+        """
+        export ASPERA_SCP_PASS={webin_pass}
+        find {sample}_fast5_[0-9][0-9].tar.gz | xargs -i --max-procs={splits} bash -c "ascp -QT -l300M -L- {{}} {webin_user}@webin.ebi.ac.uk:."
+        printf "Fast5 upload to ENA completed at $(date "+%Y-%m-%d %H:%M:%S")\n" > {output}
         """
