@@ -4,7 +4,7 @@
 Snakemake workflow for high-throughput upload of sequencing data to the European Nucleotide Archive (ENA)<br/><br/>
 
 **Guides for ENAdumper workflows:**
-* [Fast5](msc/wf-fast5.md)
+* [Fast5/Pod5](msc/wf-fast5.md)
 * [FastQ](msc/wf-fastq.md)
 <br/>
 
@@ -29,9 +29,10 @@ ENAdumper --help
 ```
 COMPRESSION INPUTS:
 -fq		--fastq_dir			Path to directory with FastQ files 
--np		--fast5_dir			Path to directory with Fast5 files 
+-np		--nanopore_dir			Path to directory with raw Nanopore files
 -n		--sample			Sample name 
--p		--processes			Number of processes and fast5 batch count 
+-p		--processes			Number of processes and batch count
+-x		--extension			Filename extension for raw Nanopore data (default:pod5)
  
 UPLOAD INPUTS:
 -user		--webin_user			Webin username 
