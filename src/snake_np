@@ -1,9 +1,10 @@
-# DESCRIPTION: Snakemake workflow code for uploading Nanopore raw data to ENA
+# DESCRIPTION: Snakemake workflow code for uploading raw Nanopore data to ENA
 # AUTHOR: Mantas Sereika (mase@bio.aau.dk)
 # LICENSE: GNU General Public License
 
 splits=config["splits"]
-fast5=config["fast5"]
+np_dir=config["np_dir"]
+extension=config["extension"]
 sample=config["sample"]
 study=config["study"]
 webin_user=config["webin_user"]
@@ -33,7 +34,7 @@ rule document:
         printf "FileType\tOxfordNanopore_native\tRead submission file type\n" > {output}
         printf "sample\tstudy\tinstrument_model\tlibrary_name\tlibrary_source\tlibrary_selection\tlibrary_strategy\tfile_name\tfile_md5\n" >> {output}
 
-        for file in {sample}_fast5_[0-9][0-9].tar.gz; do
+        for file in {sample}_{extension}_[0-9][0-9].tar.gz; do
 		md5=$(cat $file.md5 | sed 's/  /,/' | cut -f1 -d",")
 		file_name=$(cat $file.md5 | sed 's/  /,/' | cut -f2 -d",")
 		printf "$sample_ena\t{study}\t{instrument_model}\t$library\t{library_source}\t{library_selection}\t{library_strategy}\t$file_name\t$md5\n" >> {output}
@@ -41,36 +42,34 @@ rule document:
         """
 		
 rule split:
-    params:
-        find='-name "*.fast5"'
     output:
-        expand("{name}_fast5.txt", name=sample)
+        expand("{name}_{extension}.txt", name=sample, extension=extension)
     shell:
         """
-        find {fast5} {params.find} > {output}
-        split -n l/{splits} --numeric-suffixes=1 -d {output} {sample}_fast5_
+        find {np_dir} -name "*.{extension}" > {output}
+        split -n l/{splits} --numeric-suffixes=1 -d {output} {sample}_{extension}_
         """
 
 rule compress:
     input:
-        expand("{name}_fast5.txt", name=sample)
+        expand("{name}_{extension}.txt", name=sample, extension=extension)
     output:
-        expand("{name}_fast5_01.tar.gz", name=sample)
+        expand("{name}_{extension}_01.tar.gz", name=sample, extension=extension)
     shell:
         """
-        find {sample}_fast5_[0-9][0-9] | xargs -i --max-procs={splits} bash -c "tar -cvzf {{}}.tar.gz -T {{}} --transform 's/.*\///g' --show-transformed"
-        find {sample}_fast5_[0-9][0-9].tar.gz | xargs -i --max-procs={splits} bash -c "md5sum {{}} > {{}}.md5"
-        if [ ! -f {output} ]; then printf "Error with fast5 compression" && exit 1; fi
+        find {sample}_{extension}_[0-9][0-9] | xargs -i --max-procs={splits} bash -c "tar -cvzf {{}}.tar.gz -T {{}} --transform 's/.*\///g' --show-transformed"
+        find {sample}_{extension}_[0-9][0-9].tar.gz | xargs -i --max-procs={splits} bash -c "md5sum {{}} > {{}}.md5"
+        if [ ! -f {output} ]; then printf "Error with {extension} compression" && exit 1; fi
         """
 
 rule upload:
     input:
-        expand("{name}_fast5_01.tar.gz", name=sample)
+        expand("{name}_{extension}_01.tar.gz", name=sample, extension=extension)
     output:
         'upload.txt'
     shell:
         """
         export ASPERA_SCP_PASS={webin_pass}
-        find {sample}_fast5_[0-9][0-9].tar.gz | xargs -i --max-procs={splits} bash -c "ascp -QT -l300M -L- {{}} {webin_user}@webin.ebi.ac.uk:."
-        printf "Fast5 upload to ENA completed at $(date "+%Y-%m-%d %H:%M:%S")\n" > {output}
+        find {sample}_{extension}_[0-9][0-9].tar.gz | xargs -i --max-procs={splits} bash -c "ascp -QT -l300M -L- {{}} {webin_user}@webin.ebi.ac.uk:."
+        printf "{extension} upload to ENA completed at $(date "+%Y-%m-%d %H:%M:%S")\n" > {output}
         """

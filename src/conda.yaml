@@ -5,6 +5,6 @@ channels:
 - hcc
 - defaults
 dependencies:
-- snakemake=7.19.1
+- snakemake=7.26.0
 - aspera-cli=3.9.6
 - git=2.34.1

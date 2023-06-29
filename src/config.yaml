@@ -1,6 +1,7 @@
 splits: 3
-fast5: fast5
+np_dir: Nanopore
 fastq: fastq
+extension: pod5
 sample: SampleName
 study: StudyName
 webin_user: Username

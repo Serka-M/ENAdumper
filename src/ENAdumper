@@ -5,14 +5,15 @@
 
 # Pre-set default settings
 set -eo pipefail
-version=1.0
+version=1.0.1
 mode="OFF"
 script=$(dirname -- "$BASH_SOURCE")
 config=$script/config.yaml
 
 splits=$(grep splits $config | cut -d" " -f2 | tr -d '\r')
-fast5=$(grep fast5 $config | cut -d" " -f2 | tr -d '\r')
+np_dir=$(grep np_dir $config | cut -d" " -f2 | tr -d '\r')
 fastq=$(grep fastq $config | cut -d" " -f2 | tr -d '\r')
+extension=$(grep extension $config | cut -d" " -f2 | tr -d '\r')
 sample=$(grep sample $config | cut -d" " -f2 | tr -d '\r')
 
 webin_user=$(grep webin_user $config | cut -d" " -f2 | tr -d '\r')
@@ -34,9 +35,10 @@ For issues or feedback please use https://github.com/Serka-M/ENAdumper/issues or
 
 COMPRESSION INPUTS:
 -fq		--fastq_list			Path to list with FastQ files (default:$fastq)
--np		--fast5_dir			Path to directory with Fast5 files (default:$fast5)
+-np		--nanopore_dir			Path to directory with raw Nanopore files (default:$np_dir)
 -n		--sample			Sample name (default:$sample)
--p		--processes			Number of processes and fast5 batch count (default:$splits)
+-p		--processes			Number of processes and batch count (default:$splits)
+-x		--extension			Filename extension for raw Nanopore data (default:$extension)
  
 UPLOAD INPUTS:
 -user		--webin_user			Webin username (default:$webin_user)
@@ -62,7 +64,7 @@ while test $# -gt 0; do
            case "$1" in
                 -h | --help) printf -- "$usage_text"; exit 1;;
                 -v | --version) printf -- "ENAdumper, v$version\n"; exit 1;;
-                -np | --fast5_dir) shift; fast5=$1 && mode="fast5" && snakefile=$script/snake_np; shift;;
+                -np | --nanopore_dir) shift; np_dir=$1 && mode="Nanopore" && snakefile=$script/snake_np; shift;;
                 -fq | --fastq_list) shift; fastq=$1 && mode="fastq" && snakefile=$script/snake_fq; shift;;
                 -n | --sample) shift; sample=$1; shift;;
                 -s | --study) shift; study=$1; shift;;
@@ -70,6 +72,7 @@ while test $# -gt 0; do
                 -user | --webin_user) shift; webin_user=$1; shift;;
                 -pass | --webin_pass) shift; webin_pass=$1; shift;;
                 -p | --processes) shift; splits=$1; shift;;
+                -x | --extension) shift; extension=$1; shift;;
                 -ins | --instrument_model) shift; instrument_model=$1; shift;;
                 -lib_n | --library_name) shift; library_name=$1; shift;;
                 -lib_src | --library_source) shift; library_source=$1; shift;;
@@ -83,15 +86,15 @@ while test $# -gt 0; do
   done  
 
 # Check mode type
-if [ $mode == "OFF" ]; then echo "Input files not provided. Exitting..." && exit 1; fi
-if [ ! $fast5 == "fast5" ] && [ ! $fastq == "fastq" ]; then echo "Multiple input files provided. Exitting..." && exit 1; fi
+if [ $mode == "OFF" ]; then echo "Input files not provided. Aborting..." && exit 1; fi
+if [ ! $np_dir == "Nanopore" ] && [ ! $fastq == "fastq" ]; then echo "Multiple input files provided. Aborting..." && exit 1; fi
 
-# Checks for fast5 transfer mode
-if [ $mode == "fast5" ]; then
-# Turn relative path into absolute for fast5 input
-if [[ ! "$fast5" = /* ]]; then fast5="$(pwd)/$fast5"; fi
-# Check if fast5 input directory exists
-if [ ! -d "$fast5" ]; then echo "ERROR: fast5 directory not found at $fast5. Aborting..." && exit 1; fi; fi
+# Checks for Nanopore data transfer mode
+if [ $mode == "Nanopore" ]; then
+# Turn relative path into absolute for Nanopore data input
+if [[ ! "$np_dir" = /* ]]; then np_dir="$(pwd)/$np_dir"; fi
+# Check if Nanopore data input directory exists
+if [ ! -d "$np_dir" ]; then echo "ERROR: directory for raw Nanopore data not found at $np_dir. Aborting..." && exit 1; fi; fi
 
 # Checks for fastq transfer mode
 if [ $mode == "fastq" ]; then
@@ -126,8 +129,8 @@ if ! command -v basename &> /dev/null; then echo "Dependency "basename" could no
 if [ ! -d "$(pwd)/ENAdumper_${mode}_${sample}" ]; then mkdir $(pwd)/ENAdumper_${mode}_${sample}; fi
 
 # Run snakemake workflow
-echo "Starting Snakemake workflow for uploading $mode files..."
+echo "Starting Snakemake workflow for uploading raw $mode files..."
 cd $(pwd)/ENAdumper_${mode}_${sample}
-snakemake --cores $splits -s $snakefile --configfile $config --config sample=$sample study=$study fast5=$fast5 fastq=$fastq splits=$splits webin_pass=$webin_pass webin_user=$webin_user key=$key instrument_model=$instrument_model library_name=$library_name library_source=$library_source library_selection=$library_selection library_strategy=$library_strategy library_layout=$library_layout
+snakemake --cores $splits -s $snakefile --configfile $config --config sample=$sample study=$study np_dir=$np_dir fastq=$fastq extension=$extension splits=$splits webin_pass=$webin_pass webin_user=$webin_user key=$key instrument_model=$instrument_model library_name=$library_name library_source=$library_source library_selection=$library_selection library_strategy=$library_strategy library_layout=$library_layout
 cd ..
 exit 0
